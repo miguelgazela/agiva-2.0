@@ -1,39 +1,23 @@
 // JavaScript Document
 
-var xmlhttp;
-
 function login() {
-	var username = $('#username');
-	var pass = $('#pass');
-	
-	if(validateUsername() && validatePass()) {
-	
-		makeXMLHTTP();
-	
-		xmlhttp.open("POST","./api/login.php",true);
-		xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		xmlhttp.send($('#loginForm').serialize());
-				
-		xmlhttp.onreadystatechange = function() {
-			if(xmlhttp.readyState==4 && xmlhttp.status==200) {
-				var usernameInfo = $('#usernameInfo');
-				var passInfo = $('#passInfo');
-			
-				if(xmlhttp.responseText == 'LOGIN_FAILURE') {
-					username.addClass("error");
-					usernameInfo.text("Nome de utilizador inválido");  
-        			usernameInfo.addClass("error");
-					pass.addClass("error");  
-        			passInfo.text("ou password...");  
-        			passInfo.addClass("error");
-					usernameInfo.show('fast', function(){});
-					passInfo.show('fast', function(){});
-				}
-				else if(xmlhttp.responseText == 'OK')
-					setTimeout("location.reload(true);", 1);
+	var user = $('#username').val();
+	var pass = $('#password').val();
+
+	if( (user.length < 1 || pass.length < 1) && ($('.alert').length == 0) ) {
+		$('#password').after('<div class="alert alert-error fade in"><button type="button" class="close" data-dismiss="alert">&times</button>Dados incorrectos.</div>');
+		return;
+	}
+	// change this to having the form sending the info directly. It may be vulnerable this way
+	$.ajax({url:"./api/login.php", processData:"false", type:"POST", dataType:"JSON", data:{username:user, password:pass}}).done(function(response){
+		if(response['result'] == "SUCCESS") {
+			document.location.href='index.php';
+		} else {
+			if($('.alert').length == 0) {
+				$('#password').after('<div class="alert alert-error fade in"><button type="button" class="close" data-dismiss="alert">&times</button>Dados incorrectos.</div>');
 			}
 		}
-	}
+	});
 }
 
 function loadPage() {
@@ -51,20 +35,35 @@ function loadPage() {
 					var tax = taxes[i];
 					$('table').append('<tr id="'+tax.id+'"></tr>');
 
+					var now = new Date();
+					var taxLimitDate = new Date(tax.dataLimitePagamento);
 					var remainingDays = diffDaysToNow(new Date(tax.dataLimitePagamento)); // not working on Firefox
+
 					if(remainingDays < 0) {
 						overdueTaxes = true;
-						$('table tr:last-child').addClass('error');
-					} else if(remainingDays <= 40) {
-						$('table tr:last-child').addClass('warning');
-						nearLimitTaxes = true;
-					} else if(remainingDays <= 60) {
-						$('table tr:last-child').addClass('success');
-					} else {
 						$('table tr:last-child').addClass('info');
+					} else {
+						if(now.getFullYear() == taxLimitDate.getFullYear()) {
+							if(now.getMonth() == taxLimitDate.getMonth()) {
+								$('table tr:last-child').addClass('error');
+								nearLimitTaxes = true;
+							} else if(now.getMonth() == (taxLimitDate.getMonth() - 1)) {
+								$('table tr:last-child').addClass('warning');
+							} else {
+								$('table tr:last-child').addClass('success');
+							}
+						} else {
+							if((now.getMonth() == 11) && (taxLimitDate.getMonth() == 0)) {
+								$('table tr:last-child').addClass('error');
+							} else if((now.getMonth() == 11) && (taxLimitDate.getMonth() == 1)) {
+								$('table tr:last-child').addClass('warning');
+							} else {
+								$('table tr:last-child').addClass('success');
+							}
+						}
 					}
 					$('table tr:last-child').append('<td><i class="icon-user"></i><a href="client.php?clientID='+tax.idCliente+'"> '+fillClientName(tax.nome)+'</a></td><td>'+tax.nif+'</td><td>'+tax.marca+' '+tax.modelo+'</td><td>'+tax.matricula+'</td><td>'+fillLimitDate(tax.dataLimitePagamento)+'</td>');
-					$('table tr:last-child').append('<td><div class="btn-group"><button class="btn btn-inverse btn-mini">Opções</button><button class="btn btn-inverse btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button><ul class="dropdown-menu"><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',1)">Pago</a></li><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',2)">Não Pago</a></li><li class="divider"></li><li><a href="client.php?clientID='+tax.idCliente+'">Ver Perfil</a></li><li class="divider"></li><li><a href="#" onClick="return deleteTax(this)">Eliminar</a></li></ul></div></td>');
+					$('table tr:last-child').append('<td><div class="btn-group"><button class="btn btn-inverse btn-mini">Opções</button><button class="btn btn-inverse btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button><ul class="dropdown-menu"><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',1)"><i class="icon-ok"></i> Pago</a></li><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',2)"><i class="icon-remove"></i> Não Pago</a></li><li><a href="client.php?clientID='+tax.idCliente+'"><i class="icon-user"></i> Ver Perfil</a></li><li class="divider"></li><li><a href="#" onClick="return deleteTax('+tax.id+')"><i class="icon-trash"></i> Eliminar imposto</a></li></ul></div></td>');
 				}
 				if(overdueTaxes) {
 					$('table').before('<div class="alert alert-error fade in away-from-top"><button type="button" class="close" data-dismiss="alert">&times</button><strong>Aviso!</strong> Há impostos cujo prazo já passou.</div>');
@@ -283,6 +282,63 @@ function addTaxToExistingClientAux() {
 	}
 }
 
+function addNewTask() {
+	//$('.modal-footer > .alert').remove();
+
+	var task = $('textarea').val();
+	var limitDate = $('#inputDate').val();
+	var noError = true;
+	var datePatt = /^(1|2)(9|0)[0-9]{2}-((0[1-9]{1})|(1[0-2]{1}))-((0[1-9]{1})|((1|2)[0-9]{1})|(3[0-1]{1}))$/i;
+
+	if(task.length < 3) {
+		noError = false;
+		if($('#newTask .alert').length == 0) {
+			$('#cancelBtn').before('<div class="alert alert-error fade in"><button type="button" class="close" data-dismiss="alert">&times</button>A tarefa é demasiado curta. 3 caracteres no mínimo.</div>');
+		} else {
+			$('#newTask .alert').html('<button type="button" class="close" data-dismiss="alert">&times</button>A tarefa é demasiado curta. 3 caracteres no mínimo.');
+		}
+	}
+	if(limitDate.length > 0 && !datePatt.test(limitDate)) {
+		noError = false;
+		$('#inputDate + span').html('Data inválida.').parent().addClass('error');
+	}
+	if(noError) {
+		if(limitDate.length == 0) {
+			limitDate = "1988-11-11 08:00:00";
+		}
+		var priority = $('button.active').html();
+		if(priority == "Baixa") {
+			priority = 3;
+		} else if (priority == "Normal") {
+			priority = 2;
+		} else {
+			priority = 1;
+		}
+
+		$.ajax({url:"./api/addNewTask.php", processData:"false", type:"GET", dataType:"JSON", data:{task:task, date:limitDate, priority:priority}}).done(function(response){
+			if(response['result'] == "SUCCESS") {
+				window.location.reload();
+				$('#newTask').modal('hide');
+			} else {
+				$('.modal-footer > .alert').remove();
+				if($('#newTask .alert').length == 0) {
+					$('#cancelBtn').before('<div class="alert alert-error fade in"><button type="button" class="close" data-dismiss="alert">&times</button><strong>Ups!</strong> Alguma coisa correu mal. Tenta outra vez.</div>');
+				} else {
+					$('#newTask .alert').html('<button type="button" class="close" data-dismiss="alert">&times</button><strong>Ups!</strong> Alguma coisa correu mal. Tenta outra vez.');
+				}
+			}
+		});
+	}
+}
+
+function removeTask(taskID) {
+	$.ajax({url:"./api/removeTask.php", processData:"false", type:"GET", dataType:"JSON", data:{id:taskID}}).done(function(response){
+		if(response['result'] == "SUCCESS") {
+			$('#'+taskID).fadeOut().remove();
+		}
+	});
+}
+
 function resetForm() {
 	$('.help-inline').html('');
 	$('.help-inline').parent().parent().removeClass('error');
@@ -294,9 +350,10 @@ function fullFormReset() {
 }
 
 function clearModal() {
-	
+	$('textarea').val('');
+	$('#inputDate').val('');
+	$('.modal-footer > .alert').remove();
 }
-
 
 function fillClientName(name) {
 	var nameLength = name.length;
@@ -316,58 +373,6 @@ function fillClientName(name) {
 function fillLimitDate(date) {
 	var pos = date.indexOf(' ');
 	return date.substr(0, pos);	
-}
-
-function validateUsername(){ 
-	var username = $('#username');
-	var usernameInfo = $('#usernameInfo'); 
-	 
-    //if it's NOT valid  
-    if(username.val().length < 3) {  
-        username.addClass("error");
-		usernameInfo.text("Nome de utilizador demasiado curto");  
-        usernameInfo.addClass("error"); 
-		usernameInfo.show('fast', function(){});
-		return false;
-    }  
-    //if it's valid  
-    else{  
-        username.removeClass("error");  
-        usernameInfo.removeClass("error");
-		usernameInfo.hide('fast', function(){});  
-		return true;
-    }  
-} 
-
-function validatePass(){ 
-    var pass = $("#pass");  
-	var passInfo = $('#passInfo');
-  
-    //it's NOT valid  
-    if(pass.val().length < 5){  
-        pass.addClass("error");  
-        passInfo.text("Ey! Pelo menos 5 caracteres: letras, números ou '_'");  
-        passInfo.addClass("error"); 
-		passInfo.show('fast', function(){});
-		return false;
-    }  
-    //it's valid  
-    else{             
-        pass.removeClass("error");  
-        passInfo.removeClass("error");
-		passInfo.hide('fast', function(){}); 
-		return true;
-    }  
-}
-
-function makeXMLHTTP() {
-	if(window.XMLHttpRequest)
-		xmlhttp = new XMLHttpRequest(); // code for IE7+, Firefox, Chrome, Opera, Safari
-	else
-		if(window.ActiveXObject)
-  			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // code for IE6, IE5
-		else
-			alert ("Bummer! Your browser does not support XMLHTTP!");
 }
 
 function diffDaysToNow(date) {

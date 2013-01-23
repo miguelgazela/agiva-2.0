@@ -36,32 +36,37 @@
             , 		'<h3 id="myModalLabel">Nova tarefa</h3>'
             ,		'</div>'
             , '<div class="modal-body">'
-            , 		'<textarea rows="4" class="btn-block"></textarea>'
-            ,		'<label class="control-label" for="inputDate"><i class="icon-calendar"></i> Data Limite</label><input type="text" id="inputDate" placeholder="YYYY-MM-DD"><span class="help-inline"></span>'
-            ,		'<label class="control-label" for="inputPriority"><i class="icon-exclamation-sign"></i> Prioridade</label>'
+            , 		'<textarea rows="4" class="btn-block"></textarea>' 
+            ,		'<div class="control-group"><label class="control-label" for="inputDate"><i class="icon-calendar"></i> Data Limite (opcional)</label><input type="text" id="inputDate" placeholder="YYYY-MM-DD"><span class="help-inline"></span></div>'
+            ,		'<label class="control-label" for="inputPriority"><i class="icon-exclamation-sign"></i> Prioridade (opcional)</label>'
             , 		'<div class="btn-group" data-toggle="buttons-radio">'
-  			,			'<button type="button" class="btn btn-success">Baixa</button>'
-  			,			'<button type="button" class="btn btn-warning">Média</button>'
+  			,			'<button type="button" class="btn btn-info">Baixa</button>'
+  			,			'<button type="button" class="btn btn-success active">Normal</button>'
   			,			'<button type="button" class="btn btn-danger">Alta</button>'
 			,		'</div>'
             , '</div>'
             , '<div class="modal-footer">'
-            , 		'<button class="btn" data-dismiss="modal" aria-hidden="true">Cancelar</button>'
-            ,		'<button class="btn btn-primary">Guardar</button>'
+            , 		'<button class="btn" id="cancelBtn" data-dismiss="modal" aria-hidden="true">Cancelar</button>'
+            ,		'<button class="btn btn-primary" onClick="return addNewTask()">Guardar</button>'
             , '</div>'
             , '</div>';
 			
 			$db = new PDO("sqlite:dados.db");
 			$username = $_SESSION['username'];
-			$select = "SELECT * FROM tarefas WHERE user = '$username'";
+			$select = "SELECT * FROM tarefas WHERE user = '$username' ORDER BY prioridade";
 
 			if($query = $db->query($select)) {
 				$result = $query->fetchAll(PDO::FETCH_ASSOC);
 				echo '<div class="away-from-top">';
 				if(!empty($result)) {
 					foreach($result as $row) {
-						echo '<div class="alert alert-info fade in" id="'.$row['id'].'"><button type="button" class="close" data-dismiss="alert">&times</button>'.$row['tarefa'].'</div>';
-					}
+                        if($row['prioridade'] == 3)
+                            echo '<div class="alert alert-info fade in" id="'.$row['id'].'"><button type="button" onClick="return removeTask('.$row['id'].')" class="close" data-dismiss="alert">&times</button>'.$row['tarefa'].'</div>';
+				        else if( $row['prioridade'] == 2)
+                            echo '<div class="alert alert-success fade in" id="'.$row['id'].'"><button type="button" onClick="return removeTask('.$row['id'].')" class="close" data-dismiss="alert">&times</button>'.$row['tarefa'].'</div>';
+                        else
+                            echo '<div class="alert alert-error fade in" id="'.$row['id'].'"><button type="button" onClick="return removeTask('.$row['id'].')" class="close" data-dismiss="alert">&times</button>'.$row['tarefa'].'</div>';
+                    }
 				}
 				echo '</div>';
 			} else {

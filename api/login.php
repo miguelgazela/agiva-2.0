@@ -1,40 +1,33 @@
 <?php
 	session_start();
-	
-	if(!isset($_POST['username']))
-		die('NO_USERNAME');
+	header('Content-Type: application/json');
+	$response;
+
+	if(!isset($_POST['username']) || !isset($_POST['password'])) {
+		$response['result'] = "MISSING_PARAMETERS";
+	} else {
+		$username = $_POST['username'];
+		$password = $_POST['password'];
 		
-	if(!isset($_POST['password']))
-		die('NO_PASSWORD');
-		 
-	$username = $_POST['username'];
-	$password = $_POST['password'];
-	
-	if(strlen($username) == 0)
-		die('EMPTY_USERNAME');
-		
-	if(strlen($password) == 0)
-		die('EMPTY_PASSWORD');
-		
-	$db = new PDO("sqlite:../dados.db");
-	
-	$select = "SELECT * FROM administradores WHERE username = '$username'";
-	$query = $db->query($select);
-	
-	if($query == FALSE)
-		die('QUERY_NOT_ABLE_TO_PERFORM');
-	
-	$result = $query->fetch(PDO::FETCH_ASSOC);
-	
-	if(!isset($result['username']))
-		die('LOGIN_FAILURE');
-		
-	if($result['password'] != $password)
-		die('LOGIN_FAILURE');
-	
-	$_SESSION['username'] = $result['username'];
-	//$_SESSION['password'] = $result['password'];
-	
-	die('OK');
-	
+		if(strlen($username) == 0 || strlen($password)) {
+			$response['result'] = "INCORRECT_PARAMETERS";
+		}
+			
+		$db = new PDO("sqlite:../dados.db");
+		$select = "SELECT * FROM administradores WHERE username = '$username'";
+		if(($result = $db->query($select))) {
+			$user = $result->fetch(PDO::FETCH_ASSOC);
+			if(!empty($user) && isset($user['username'])) {
+				if($user['password'] == $password) {
+					$response['result'] = "SUCCESS";
+					$_SESSION['username'] = $user['username'];
+				} else {
+					$response['result'] = "WRONG_PASSWORD";
+				}
+			}
+		} else {
+			$response['result'] = "QUERY_#1_ERROR";
+		}
+	}
+	die(json_encode($response));
 ?>

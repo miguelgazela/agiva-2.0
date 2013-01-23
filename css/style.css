@@ -8,108 +8,6 @@ body {
 	display: none;
 }
 
-
-													/* BEGIN CONTENT */
-													
-#content-wrapper {
-	width:1000px;
-	min-height:1000px;
-	margin:auto;
-	margin-top:80px;
-	font-family: Arial,  Verdana, Helvetica, sans-serif;
-	padding-bottom:40px; 
-}
-
-
-													
-													/* LOGIN FORM */
-
-#loginForm {
-	width:800px;
-	margin-top:150px;
-	margin-left:300px;
-}
-
-#loginForm label {
-	display:block;
-	color:#797979;
-	font-family:Arial, Verdana, sans-serif;
-	font-size:12pt;
-	font-weight:bold;
-}
-
-#loginForm input{  
-    width: 220px;  
-    padding:7px 10px;  
-    color: #949494;  
-    font-family: Arial,  Verdana, Helvetica, sans-serif;  
-    font-size: 11px;  
-    border: 1px solid #cecece;  
-} 
-
-#loginForm input:focus{  
-    border: 1px solid #5599ff;  
-}  
-
-#loginForm input.error{  
-    background: #f8dbdb;  
-    border-color: #e77776;  
-} 
-
-#loginForm div{  
-    margin-bottom: 15px;  
-}  
-
-#loginForm div span{  
-    margin-left: 10px;  
-    color: #b1b1b1;  
-    font-size: 11pt;  
-    font-style: italic;  
-} 
-
-#loginForm div span.error{  
-    color: #e46c6e;  
-}  
-
-#loginForm #send{  
-  	background-color:#666; 
-    color: #fff;  
-    font-weight:bold;  
-    cursor: pointer;
-	font-size:10pt;
-	margin-top:20px; 
-}  
-
-#loginForm #send:hover, #loginForm #send:focus{  
-    background: #6699ff;
-	border:1px solid #6699ff;
-}
-
-#loginForm #send:active{  
-    background: #3399ff;
-	border:1px solid #3399ff;
-}   
-
-p.clientName, p.clientNIF {
-	font-family: Arial,  Verdana, Helvetica, sans-serif; 
-	font-weight: 700;
-	font-size: 11pt;
-	margin-bottom: 10px;
-	color: #797979;
-}
-
-span.clientLink a {
-	text-decoration: none;
-	color: #797979;
-}
-
-span.clientLink a:hover {
-	color:#39f;
-	text-decoration: underline;
-}
-
-
-
 /* misc area
 -------------------------------------------------- */
 
@@ -127,6 +25,15 @@ table tr td a:hover {
 
 button[type="reset"] {
 	margin-left: 5px;
+}
+
+/* login area
+-------------------------------------------------- */
+
+#login {
+	width: 300px;
+	margin: auto;
+	margin-top: 60px;
 }
 
 /* navbar area

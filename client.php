@@ -14,6 +14,7 @@
     
     <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="screen">
+    <link rel="stylesheet" type="text/css" href="css/print.css" media="print">
     <link href="css/style.css" rel="stylesheet" />
     <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="favicon.ico">
 </head>
@@ -36,7 +37,7 @@
 				$result = $query->fetch(PDO::FETCH_ASSOC);
 
 				echo "<h3>".$result['nome']."</h3>"
-				, "<h4>NIF: ".$result['nif'].'</h4>'
+				, "<h4>NIF/NIPC: ".$result['nif'].'</h4>' // change to NIF or NIPC depending on the number
 				, '<address>'.$result['morada'].'<br>'.$result['localidade'].'<br>'.$result['freguesia'].'<br>'.$result['postal'].'</address>'
 				, '<span class="spacer"></span>';
 			}
@@ -77,9 +78,9 @@
 					, 	'<button class="btn btn-inverse btn-mini">Opções</button>'
 					,	'<button class="btn btn-inverse btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>'
 					, 	'<ul class="dropdown-menu">'
-					,		'<li><a href="#" onclick="return changeTaxLimitDate('.$row['idViatura'].',1)">Pago</a></li>'
-					,		'<li><a href="#" onclick="return changeTaxLimitDate('.$row['idViatura'].',2)">Não Pago</a></li>'
-					,		'<li class="divider"></li><li><a href="#" onClick="return deleteTax(this)">Eliminar</a></li>'
+					,		'<li><a href="#" onclick="return changeTaxLimitDate('.$row['idViatura'].',1)"><i class="icon-ok"></i> Pago</a></li>'
+					,		'<li><a href="#" onclick="return changeTaxLimitDate('.$row['idViatura'].',2)"><i class="icon-remove"></i> Não Pago</a></li>'
+					,		'<li class="divider"></li><li><a href="#" onClick="return deleteTax(this)"><i class="icon-trash"></i> Eliminar</a></li>'
 					,	'</ul></div></td>'
 					, '</tr>';
 				}

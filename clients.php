@@ -32,7 +32,7 @@
 			if($query = $db->query($select)) {
 				$result = $query->fetchAll(PDO::FETCH_ASSOC);
 				echo '<table class="table table-hover table-condensed">'
-				, '<tr><th>#</th><th>Nome</th><th>NIF</th><th></th></tr>';
+				, '<tr><th>#</th><th>Nome</th><th>NIF/NIPC</th><th></th></tr>';
 				$var = 1;
 				foreach($result as $row) {
 					echo '<tr><td>'.$var++.'</td>'
@@ -41,8 +41,8 @@
 					, 	'<button class="btn btn-inverse btn-mini">Opções</button>'
 					,	'<button class="btn btn-inverse btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>'
 					, 	'<ul class="dropdown-menu">'
-					,		'<li><a href="client.php?clientID='.$row['id'].'">Ver perfil</a></li>'
-					,		'<li class="divider"></li><li><a href="#">Eliminar</a></li>'
+					,		'<li><a href="client.php?clientID='.$row['id'].'"><i class="icon-user"></i> Ver perfil</a></li>'
+					,		'<li class="divider"></li><li><a href="#"><i class="icon-trash"></i> Eliminar</a></li>'
 					,	'</ul></div></td></tr>';
 
 				}
