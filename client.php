@@ -49,13 +49,14 @@
 				$result = $query->fetchAll(PDO::FETCH_ASSOC);
 
 				echo '<table class="table table-hover table-condensed">'
-				, '<tr><th>#</th><th>Marca</th><th>Modelo</th><th>Matricula</th><th>Data limite</th><th>Tempo Restante</th><th></th></tr>';
+				, '<tr><th>#</th><th>Marca</th><th>Modelo</th><th>Matrícula</th><th>Data Matrícula</th><th>Data limite</th><th>Tempo Restante</th><th></th></tr>';
 				$var = 1;
 				foreach ($result as $row) {
 					echo '<tr><td>'.$var++.'</td>'
 					, '<td>'.$row['marca'].'</td>'
 					, '<td>'.$row['modelo'].'</td>'
 					, '<td>'.$row['matricula'].'</td>'
+					, '<td>'.substr($row['dataMatricula'],0,10).'</td>'
 					, '<td>'.substr($row['dataLimitePagamento'],0,10).'</td>';
 
 					if(strtotime($row['dataLimitePagamento']) < strtotime('now')) {
