@@ -40,13 +40,11 @@ function loadPage() {
 					var remainingDays = diffDaysToNow(new Date(tax.dataLimitePagamento)); // not working on Firefox
 
 					if(remainingDays < 0) {
-						overdueTaxes = true;
 						$('table tr:last-child').addClass('info');
 					} else {
 						if(now.getFullYear() == taxLimitDate.getFullYear()) {
 							if(now.getMonth() == taxLimitDate.getMonth()) {
 								$('table tr:last-child').addClass('error');
-								nearLimitTaxes = true;
 							} else if(now.getMonth() == (taxLimitDate.getMonth() - 1)) {
 								$('table tr:last-child').addClass('warning');
 							} else {
@@ -64,15 +62,6 @@ function loadPage() {
 					}
 					$('table tr:last-child').append('<td><i class="icon-user"></i><a href="client.php?clientID='+tax.idCliente+'"> '+fillClientName(tax.nome)+'</a></td><td>'+tax.nif+'</td><td>'+tax.marca+' '+tax.modelo+'</td><td>'+tax.matricula+'</td><td>'+fillLimitDate(tax.dataLimitePagamento)+'</td>');
 					$('table tr:last-child').append('<td><div class="btn-group"><button class="btn btn-inverse btn-mini">Opções</button><button class="btn btn-inverse btn-mini dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button><ul class="dropdown-menu"><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',1)"><i class="icon-ok"></i> Pago</a></li><li><a href="#" onclick="return changeTaxLimitDate('+tax.id+',2)"><i class="icon-remove"></i> Não Pago</a></li><li><a href="client.php?clientID='+tax.idCliente+'"><i class="icon-user"></i> Ver Perfil</a></li><li class="divider"></li><li><a href="#" onClick="return deleteTax('+tax.id+')"><i class="icon-trash"></i> Eliminar imposto</a></li></ul></div></td>');
-				}
-				if(overdueTaxes) {
-					$('table').before('<div class="alert alert-error fade in away-from-top"><button type="button" class="close" data-dismiss="alert">&times</button><strong>Aviso!</strong> Há impostos cujo prazo já passou.</div>');
-				}
-				if(nearLimitTaxes) {
-					$('table').before('<div class="alert alert-warning fade in away-from-top"><button type="button" class="close" data-dismiss="alert">&times</button><strong>Aviso!</strong> Há impostos cujo prazo está próximo.</div>');
-					if(overdueTaxes) {
-						$('div.alert-warning').removeClass('away-from-top');
-					}
 				}
 			}
 		} else {
